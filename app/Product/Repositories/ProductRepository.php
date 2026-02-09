@@ -6,6 +6,7 @@ namespace App\Product\Repositories;
 
 use App\Models\Product;
 use App\Product\Data\SaveProductDTO;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductRepository
 {
@@ -19,5 +20,10 @@ class ProductRepository
     public function findOneById(int $id): ?Product
     {
         return Product::whereId($id)->first();
+    }
+
+    public function findAll(): LengthAwarePaginator
+    {
+        return Product::with("product_image")->paginate(9);
     }
 }

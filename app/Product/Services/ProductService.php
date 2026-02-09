@@ -24,4 +24,17 @@ class ProductService
 
         return $product;
     }
+
+    public function getAllProducts(): array
+    {
+        $paginator = $this->productRepository->findAll();
+
+        return [
+            "products" => $paginator->items(),
+            "total_pages" => $paginator->total(),
+            "per_page" => $paginator->perPage(),
+            "current_page" => $paginator->currentPage(),
+            "last_page" => $paginator->lastPage(),
+        ];
+    }
 }

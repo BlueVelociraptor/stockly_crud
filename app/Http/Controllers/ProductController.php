@@ -25,4 +25,15 @@ class ProductController extends Controller
             data: $product,
         );
     }
+
+    public function getAllProductEndpoints(): JsonResponse
+    {
+        $products = $this->productService->getAllProducts();
+
+        return JsonResponseBuilder::buildSuccessfullyResponse(
+            statusCode: 200,
+            message: "You have gotten your products successfully!",
+            data: $products
+        );
+    }
 }
