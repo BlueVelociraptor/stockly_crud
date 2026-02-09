@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Models\Product;
 use App\Shared\Cloudinary\Data\ImageUploadedToCloudinaryDTO;
 use App\Shared\Cloudinary\Services\CloudinaryService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -55,6 +56,23 @@ class ProductControllerTest extends TestCase
             "public_url" => $cloudinaryResponse->public_url,
             "public_id" => $cloudinaryResponse->public_id,
         ]);
+    }
+
+    public function test_save_product_endpoint_should_detect_duplicated_name_in_database(): void
+    {
+        $product = Product::factory()->create();
+
+        $payload = [
+            "name" => $product->name,
+            "price" => "150.00",
+            "image" => UploadedFile::fake()->image("example.jpg"),
+            "description" => "Example description",
+        ];
+
+        $response = $this->postJson("/api/product/save", $payload);
+
+        $response->assertStatus(422);
+        $this->assertDatabaseHas("products", ["name" => $product->name]);
     }
 
     protected function tearDown(): void
