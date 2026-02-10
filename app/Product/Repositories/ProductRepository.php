@@ -17,9 +17,19 @@ class ProductRepository
         ));
     }
 
+    public function deleteOne(Product $product): bool
+    {
+        return $product->delete();
+    }
+
     public function findOneById(int $id): ?Product
     {
         return Product::whereId($id)->with("product_image")->first();
+    }
+
+    public function findAll(): LengthAwarePaginator
+    {
+        return Product::with("product_image")->paginate(9);
     }
 
     public function updateStatus(Product $product): Product
@@ -28,10 +38,5 @@ class ProductRepository
         $product->save();
 
         return $product;
-    }
-
-    public function findAll(): LengthAwarePaginator
-    {
-        return Product::with("product_image")->paginate(9);
     }
 }

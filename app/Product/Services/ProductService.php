@@ -8,6 +8,7 @@ use App\Models\Product;
 use App\Product\Data\SaveProductDTO;
 use App\Product\Exceptions\ProductDoesntExistException;
 use App\Product\Repositories\ProductRepository;
+use App\Shared\Services\DeleteProductImageService;
 use App\Shared\Services\UploadProductImageService;
 
 class ProductService
@@ -15,6 +16,7 @@ class ProductService
     public function __construct(
         private readonly ProductRepository $productRepository,
         private readonly UploadProductImageService $uploadProductImageService,
+        private readonly DeleteProductImageService $deleteProductImageService,
     ) {}
 
     public function saveProduct(SaveProductDTO $dto): Product
@@ -42,6 +44,15 @@ class ProductService
     public function getProductById(int $id): Product
     {
         return $this->verifyProductExistsById($id);
+    }
+
+    //TODO: Test
+    public function deleteProduct(int $id): bool
+    {
+        $product = $this->verifyProductExistsById($id);
+        $this->deleteProductImageService->uploadJob($product->product_image->public_id);
+
+        return $this->productRepository->deleteOne($product);
     }
 
     public function updateProductStatus(int $id): Product

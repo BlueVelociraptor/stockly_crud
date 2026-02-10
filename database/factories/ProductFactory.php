@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Product;
+use App\Models\Product_Image;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -9,6 +11,8 @@ use Illuminate\Database\Eloquent\Factories\Factory;
  */
 class ProductFactory extends Factory
 {
+    protected $model = Product::class;
+
     /**
      * Define the model's default state.
      *
@@ -21,5 +25,13 @@ class ProductFactory extends Factory
             "price" => fake()->randomFloat(2, 5),
             "description" => fake()->sentence(),
         ];
+    }
+
+    public function withProductImage()
+    {
+        return $this->has(Product_Image::factory()->state([
+            "public_url" => "http://example.com",
+            "public_id" => "123",
+        ]));
     }
 }

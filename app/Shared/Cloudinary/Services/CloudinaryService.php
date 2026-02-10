@@ -21,4 +21,11 @@ class CloudinaryService
             public_id: $cloudinaryResponse["public_id"],
         );
     }
+
+    public function deleteImage(string $publicId): void
+    {
+        cloudinary()->uploadApi()->destroy($publicId . [
+            "invalidate" => true,
+        ]);
+    }
 }

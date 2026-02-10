@@ -3,10 +3,12 @@
 namespace Tests\Unit;
 
 use App\Models\Product;
+use App\Models\Product_Image;
 use App\Product\Data\SaveProductDTO;
 use App\Product\Exceptions\ProductDoesntExistException;
 use App\Product\Repositories\ProductRepository;
 use App\Product\Services\ProductService;
+use App\Shared\Services\DeleteProductImageService;
 use App\Shared\Services\UploadProductImageService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -19,12 +21,14 @@ class ProductServiceTest extends TestCase
 {
     private readonly ProductRepository | MockInterface $mockedProductRepository;
     private readonly UploadProductImageService | MockInterface $mockedUploadProductImageService;
+    private readonly DeleteProductImageService | MockInterface $mockedDeleteProductImageService;
     private readonly ProductService $productService;
 
     protected function setUp(): void
     {
         $this->mockedProductRepository = Mockery::mock(ProductRepository::class);
         $this->mockedUploadProductImageService = Mockery::mock(UploadProductImageService::class);
+        $this->mockedDeleteProductImageService = Mockery::mock(DeleteProductImageService::class);
         parent::setUp();
     }
 
@@ -57,7 +61,11 @@ class ProductServiceTest extends TestCase
 
         //Actuar
 
-        $this->productService = new ProductService($this->mockedProductRepository, $this->mockedUploadProductImageService);
+        $this->productService = new ProductService(
+            $this->mockedProductRepository,
+            $this->mockedUploadProductImageService,
+            $this->mockedDeleteProductImageService,
+        );
         $product = $this->productService->saveProduct($dto);
         //Asertar
 
@@ -75,7 +83,11 @@ class ProductServiceTest extends TestCase
             ->once()
             ->andReturn($paginator);
 
-        $this->productService = new ProductService($this->mockedProductRepository, $this->mockedUploadProductImageService);
+        $this->productService = new ProductService(
+            $this->mockedProductRepository,
+            $this->mockedUploadProductImageService,
+            $this->mockedDeleteProductImageService,
+        );
         $productsPagination = $this->productService->getAllProducts();
 
         $this->assertCount(2, $productsPagination["products"]);
@@ -93,7 +105,11 @@ class ProductServiceTest extends TestCase
             ->once()
             ->andReturnNull();
 
-        $this->productService = new ProductService($this->mockedProductRepository, $this->mockedUploadProductImageService);
+        $this->productService = new ProductService(
+            $this->mockedProductRepository,
+            $this->mockedUploadProductImageService,
+            $this->mockedDeleteProductImageService,
+        );
 
         $this->expectException(ProductDoesntExistException::class);
         $this->expectExceptionMessage("We couldn't find a product registered with the ID you provided!");
@@ -110,7 +126,11 @@ class ProductServiceTest extends TestCase
             ->once()
             ->andReturn(new Product());
 
-        $this->productService = new ProductService($this->mockedProductRepository, $this->mockedUploadProductImageService);
+        $this->productService = new ProductService(
+            $this->mockedProductRepository,
+            $this->mockedUploadProductImageService,
+            $this->mockedDeleteProductImageService,
+        );
 
         $product = $this->productService->getProductById($productId);
 
@@ -119,10 +139,15 @@ class ProductServiceTest extends TestCase
 
     public function test_update_product_status_should_return_product_with_updated_status()
     {
-        $product = Product::factory()->make();
+        $product = Product::factory()
+            ->make()
+            ->setRawAttributes([
+                "id" => 1
+            ]);
+
         $updatedProduct = $product;
         $updatedProduct->status = false;
-        $productId = 1;
+        $productId = $product->id;
 
         $this->mockedProductRepository->shouldReceive("findOneById")
             ->with($productId)
@@ -134,12 +159,53 @@ class ProductServiceTest extends TestCase
             ->once()
             ->andReturn($updatedProduct);
 
-        $this->productService = new ProductService($this->mockedProductRepository, $this->mockedUploadProductImageService);
+        $this->productService = new ProductService(
+            $this->mockedProductRepository,
+            $this->mockedUploadProductImageService,
+            $this->mockedDeleteProductImageService,
+        );
         $productSubject = $this->productService->updateProductStatus($productId);
 
         $this->assertInstanceOf(Product::class, $productSubject);
         $this->assertFalse($productSubject->status);
     }
+
+    //TODO: Fix Factory Relation Issue
+    // public function test_delete_product_should_execute_successfully(): void
+    // {
+    //     $product = Product::factory()
+    //         ->has(Product_Image::factory())
+    //         ->make()
+    //         ->setRawAttributes([
+    //             "id" => 1
+    //         ]);
+
+    //     $productId = $product->id;
+
+    //     $this->mockedProductRepository->shouldReceive("findOneById")
+    //         ->with($productId)
+    //         ->once()
+    //         ->andReturn($product);
+
+    //     $this->mockedDeleteProductImageService->shouldReceive("uploadJob")
+    //         ->once()
+    //         ->andReturnNull();
+
+    //     $this->mockedProductRepository->shouldReceive("deleteOne")
+    //         ->with(Mockery::type(Product::class))
+    //         ->once()
+    //         ->andReturnTrue();
+
+    //     $this->productService = new ProductService(
+    //         $this->mockedProductRepository,
+    //         $this->mockedUploadProductImageService,
+    //         $this->mockedDeleteProductImageService,
+    //     );
+
+    //     $response = $this->productService->deleteProduct($productId);
+
+    //     $this->assertTrue($response);
+    // }
 
     protected function tearDown(): void
     {
