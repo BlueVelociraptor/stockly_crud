@@ -75,16 +75,28 @@ class ProductControllerTest extends TestCase
         $this->assertDatabaseHas("products", ["name" => $product->name]);
     }
 
-    public function test_get_all_products_endpoint_should_get_multiple_products_and_paginate(): void
+    public function test_get_all_products_endpoint_should_get_multiple_products_in_first_page(): void
     {
         Product::factory()->count(10)->create();
 
-        $response = $this->get("/api/product/all");
+        $response = $this->get("/api/product/all?page=1");
         $productsList = $response["data"];
 
         $response->assertStatus(200);
         $response->assertJsonStructure(["success", "message", "data"]);
         $this->assertCount(9, $productsList["products"]);
+    }
+
+    public function test_get_all_products_endpoint_should_get_multiple_products_in_next_page(): void
+    {
+        Product::factory()->count(10)->create();
+
+        $response = $this->get("/api/product/all?page=2");
+        $productsList = $response["data"];
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(["success", "message", "data"]);
+        $this->assertCount(1, $productsList["products"]);
     }
 
 
