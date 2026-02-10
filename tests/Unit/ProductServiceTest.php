@@ -8,6 +8,7 @@ use App\Product\Repositories\ProductRepository;
 use App\Product\Services\ProductService;
 use App\Shared\Services\UploadProductImageService;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 use Mockery;
 use Mockery\MockInterface;
@@ -60,6 +61,26 @@ class ProductServiceTest extends TestCase
         //Asertar
 
         $this->assertInstanceOf(Product::class, $product);
+    }
+
+    public function test_get_all_products_should_return_pagination_correctly(): void
+    {
+        $paginator = new LengthAwarePaginator([
+            new Product(),
+            new Product(),
+        ], total: 2, perPage: 9, currentPage: 1);
+
+        $this->mockedProductRepository->shouldReceive("findAll")
+            ->once()
+            ->andReturn($paginator);
+
+        $this->productService = new ProductService($this->mockedProductRepository, $this->mockedUploadProductImageService);
+        $productsPagination = $this->productService->getAllProducts();
+
+        $this->assertCount(2, $productsPagination["products"]);
+        $this->assertSame(9, $productsPagination["per_page"]);
+        $this->assertSame(2, $productsPagination["total_pages"]);
+        $this->assertSame(1, $productsPagination["current_page"]);
     }
 
     protected function tearDown(): void

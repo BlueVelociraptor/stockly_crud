@@ -26,7 +26,7 @@ class ProductController extends Controller
         );
     }
 
-    public function getAllProductEndpoints(): JsonResponse
+    public function getAllProductEndpoint(): JsonResponse
     {
         $products = $this->productService->getAllProducts();
 
