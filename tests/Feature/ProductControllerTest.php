@@ -99,6 +99,28 @@ class ProductControllerTest extends TestCase
         $this->assertCount(1, $productsList["products"]);
     }
 
+    public function test_get_product_by_id_endpoint_should_get_product_successfully(): void
+    {
+        $product = Product::factory()->create();
+
+        $response = $this->get("/api/product/{$product->id}");
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(["success", "message", "data"]);
+        $this->assertDatabaseHas("products", [
+            "id" => $product->id,
+            "name" => $product->name,
+        ]);
+    }
+
+    public function test_get_product_by_id_endpoint_should_catch_product_doesnt_exist_exception(): void
+    {
+        $response = $this->get("/api/product/1");
+
+        $response->assertStatus(404);
+        $response->assertJsonMissingValidationErrors(["success", "message"]);
+        $this->assertDatabaseMissing("products", ["id" => 1]);
+    }
 
     protected function tearDown(): void
     {

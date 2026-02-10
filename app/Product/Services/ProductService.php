@@ -6,6 +6,7 @@ namespace App\Product\Services;
 
 use App\Models\Product;
 use App\Product\Data\SaveProductDTO;
+use App\Product\Exceptions\ProductDoesntExistException;
 use App\Product\Repositories\ProductRepository;
 use App\Shared\Services\UploadProductImageService;
 
@@ -36,5 +37,20 @@ class ProductService
             "current_page" => $paginator->currentPage(),
             "last_page" => $paginator->lastPage(),
         ];
+    }
+
+    public function getProductById(int $id): Product
+    {
+        return $this->verifyProductExistsById($id);
+    }
+
+
+    public function verifyProductExistsById(int $id): Product
+    {
+        $product = $this->productRepository->findOneById($id);
+
+        if ($product === null) throw new ProductDoesntExistException();
+
+        return $product;
     }
 }

@@ -19,7 +19,7 @@ class ProductRepository
 
     public function findOneById(int $id): ?Product
     {
-        return Product::whereId($id)->first();
+        return Product::whereId($id)->with("product_image")->first();
     }
 
     public function findAll(): LengthAwarePaginator

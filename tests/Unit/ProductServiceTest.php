@@ -4,6 +4,7 @@ namespace Tests\Unit;
 
 use App\Models\Product;
 use App\Product\Data\SaveProductDTO;
+use App\Product\Exceptions\ProductDoesntExistException;
 use App\Product\Repositories\ProductRepository;
 use App\Product\Services\ProductService;
 use App\Shared\Services\UploadProductImageService;
@@ -81,6 +82,39 @@ class ProductServiceTest extends TestCase
         $this->assertSame(9, $productsPagination["per_page"]);
         $this->assertSame(2, $productsPagination["total_pages"]);
         $this->assertSame(1, $productsPagination["current_page"]);
+    }
+
+    public function test_verify_product_exists_by_id_should_throw_product_doesnt_exist_exception(): void
+    {
+        $productId = 1;
+
+        $this->mockedProductRepository->shouldReceive("findOneById")
+            ->with($productId)
+            ->once()
+            ->andReturnNull();
+
+        $this->productService = new ProductService($this->mockedProductRepository, $this->mockedUploadProductImageService);
+
+        $this->expectException(ProductDoesntExistException::class);
+        $this->expectExceptionMessage("We couldn't find a product registered with the ID you provided!");
+
+        $this->productService->verifyProductExistsById($productId);
+    }
+
+    public function test_get_product_by_id_should_return_a_product(): void
+    {
+        $productId = 1;
+
+        $this->mockedProductRepository->shouldReceive("findOneById")
+            ->with($productId)
+            ->once()
+            ->andReturn(new Product());
+
+        $this->productService = new ProductService($this->mockedProductRepository, $this->mockedUploadProductImageService);
+
+        $product = $this->productService->getProductById($productId);
+
+        $this->assertInstanceOf(Product::class, $product);
     }
 
     protected function tearDown(): void

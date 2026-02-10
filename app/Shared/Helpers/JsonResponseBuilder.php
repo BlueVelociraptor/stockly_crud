@@ -22,4 +22,23 @@ class JsonResponseBuilder
 
         return response()->json($formattedResponse, $statusCode);
     }
+
+    public static function buildUnprocessableErrorResponse(
+        int $statusCode,
+        string $errorMessage,
+        ?string $unprocessableField,
+    ): JsonResponse {
+        $formattedResponse = [
+            "success" => false,
+            "message" => $errorMessage,
+        ];
+
+        $unprocessableField !== null && $formattedResponse["errors"] = [
+            "{$unprocessableField}" => [
+                $errorMessage
+            ]
+        ];
+
+        return response()->json($formattedResponse, $statusCode);
+    }
 }

@@ -36,4 +36,17 @@ class ProductController extends Controller
             data: $products
         );
     }
+
+    //TODO: Test
+
+    public function getProductByIdEndpoint(int $id): JsonResponse
+    {
+        $product = $this->productService->getProductById($id);
+
+        return JsonResponseBuilder::buildSuccessfullyResponse(
+            statusCode: 200,
+            message: "You have gotten your product successfully!",
+            data: $product,
+        );
+    }
 }
