@@ -44,6 +44,12 @@ class ProductService
         return $this->verifyProductExistsById($id);
     }
 
+    public function updateProductStatus(int $id): Product
+    {
+        $product = $this->verifyProductExistsById($id);
+        return $this->productRepository->updateStatus($product);
+    }
+
 
     public function verifyProductExistsById(int $id): Product
     {

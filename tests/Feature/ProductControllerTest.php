@@ -122,6 +122,35 @@ class ProductControllerTest extends TestCase
         $this->assertDatabaseMissing("products", ["id" => 1]);
     }
 
+    public function test_update_product_status_endpoint_should_get_product_with_updated_status(): void
+    {
+        $productSubject = Product::factory()->create();
+
+        $response = $this->patch("/api/product/update-status/{$productSubject->id}");
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(["success", "message", "data"]);
+
+        $product = $response["data"];
+
+        $this->assertDatabaseHas("products", [
+            "id" => $product["id"],
+            "name" => $product["name"],
+            "status" => $product["status"],
+        ]);
+
+        $this->assertFalse($product["status"]);
+    }
+
+    public function test_update_product_status_should_catch_product_doesnt_exist_exception(): void
+    {
+        $response = $this->patch("/api/product/update-status/1");
+
+        $response->assertStatus(404);
+        $response->assertJsonMissingValidationErrors(["success", "message"]);
+        $this->assertDatabaseMissing("products", ["id" => 1]);
+    }
+
     protected function tearDown(): void
     {
         Mockery::close();

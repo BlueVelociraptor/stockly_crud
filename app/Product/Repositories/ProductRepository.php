@@ -22,6 +22,14 @@ class ProductRepository
         return Product::whereId($id)->with("product_image")->first();
     }
 
+    public function updateStatus(Product $product): Product
+    {
+        $product->status = !$product->status;
+        $product->save();
+
+        return $product;
+    }
+
     public function findAll(): LengthAwarePaginator
     {
         return Product::with("product_image")->paginate(9);

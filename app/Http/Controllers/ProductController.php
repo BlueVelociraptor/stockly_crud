@@ -37,8 +37,6 @@ class ProductController extends Controller
         );
     }
 
-    //TODO: Test
-
     public function getProductByIdEndpoint(int $id): JsonResponse
     {
         $product = $this->productService->getProductById($id);
@@ -46,6 +44,18 @@ class ProductController extends Controller
         return JsonResponseBuilder::buildSuccessfullyResponse(
             statusCode: 200,
             message: "You have gotten your product successfully!",
+            data: $product,
+        );
+    }
+
+    //TODO: Test
+    public function updateProductStatusEndpoint(int $id): JsonResponse
+    {
+        $product = $this->productService->updateProductStatus($id);
+
+        return JsonResponseBuilder::buildSuccessfullyResponse(
+            statusCode: 200,
+            message: "You have updated your product status successfully!",
             data: $product,
         );
     }

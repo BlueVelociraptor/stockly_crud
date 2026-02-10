@@ -117,6 +117,30 @@ class ProductServiceTest extends TestCase
         $this->assertInstanceOf(Product::class, $product);
     }
 
+    public function test_update_product_status_should_return_product_with_updated_status()
+    {
+        $product = Product::factory()->make();
+        $updatedProduct = $product;
+        $updatedProduct->status = false;
+        $productId = 1;
+
+        $this->mockedProductRepository->shouldReceive("findOneById")
+            ->with($productId)
+            ->once()
+            ->andReturn($product);
+
+        $this->mockedProductRepository->shouldReceive("updateStatus")
+            ->with($product)
+            ->once()
+            ->andReturn($updatedProduct);
+
+        $this->productService = new ProductService($this->mockedProductRepository, $this->mockedUploadProductImageService);
+        $productSubject = $this->productService->updateProductStatus($productId);
+
+        $this->assertInstanceOf(Product::class, $productSubject);
+        $this->assertFalse($productSubject->status);
+    }
+
     protected function tearDown(): void
     {
         Mockery::close();
