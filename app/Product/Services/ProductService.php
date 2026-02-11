@@ -46,7 +46,7 @@ class ProductService
         return $this->verifyProductExistsById($id);
     }
 
-    //TODO: Test
+
     public function deleteProduct(int $id): bool
     {
         $product = $this->verifyProductExistsById($id);
