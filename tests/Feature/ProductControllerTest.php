@@ -118,7 +118,7 @@ class ProductControllerTest extends TestCase
         $response = $this->get("/api/product/1");
 
         $response->assertStatus(404);
-        $response->assertJsonMissingValidationErrors(["success", "message"]);
+        $response->assertJsonStructure(["success", "message"]);
         $this->assertDatabaseMissing("products", ["id" => 1]);
     }
 
@@ -142,12 +142,47 @@ class ProductControllerTest extends TestCase
         $this->assertFalse($product["status"]);
     }
 
-    public function test_update_product_status_should_catch_product_doesnt_exist_exception(): void
+    public function test_update_product_status_endpoint_should_catch_product_doesnt_exist_exception(): void
     {
         $response = $this->patch("/api/product/update-status/1");
 
         $response->assertStatus(404);
-        $response->assertJsonMissingValidationErrors(["success", "message"]);
+        $response->assertJsonStructure(["success", "message"]);
+        $this->assertDatabaseMissing("products", ["id" => 1]);
+    }
+
+    public function test_delete_product_endpoint_should_delete_the_product_in_database(): void
+    {
+        $product = Product::factory()->withProductImage()->create();
+
+        $this->mockedCloudinaryService->shouldReceive("deleteImage")
+            ->with($product->product_image->public_id)
+            ->once()
+            ->andReturnNull();
+
+        $response = $this->delete("/api/product/delete/{$product->id}");
+
+        $response->assertStatus(200);
+        $response->assertJsonStructure(["success", "message"]);
+
+        $this->assertDatabaseMissing("products", [
+            "id" => $product->id,
+            "name" => $product->name,
+        ]);
+
+        $this->assertDatabaseMissing("product_image", [
+            "id" => $product->product_image->id,
+            "public_url" => $product->product_image->public_url,
+            "public_id" => $product->product_image->public_id,
+        ]);
+    }
+
+    public function test_delete_product_endpoint_should_catch_product_doesnt_exist_exception(): void
+    {
+        $response = $this->delete("/api/product/delete/1");
+
+        $response->assertStatus(404);
+        $response->assertJsonStructure(["success", "message"]);
         $this->assertDatabaseMissing("products", ["id" => 1]);
     }
 

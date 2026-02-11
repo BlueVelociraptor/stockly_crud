@@ -48,7 +48,6 @@ class ProductController extends Controller
         );
     }
 
-    //TODO: Test
     public function updateProductStatusEndpoint(int $id): JsonResponse
     {
         $product = $this->productService->updateProductStatus($id);
@@ -57,6 +56,17 @@ class ProductController extends Controller
             statusCode: 200,
             message: "You have updated your product status successfully!",
             data: $product,
+        );
+    }
+
+    public function deleteProductEndpoint(int $id): JsonResponse
+    {
+        $this->productService->deleteProduct($id);
+
+        return JsonResponseBuilder::buildSuccessfullyResponse(
+            statusCode: 200,
+            message: "You have deleted the product successfully!",
+            data: null,
         );
     }
 }

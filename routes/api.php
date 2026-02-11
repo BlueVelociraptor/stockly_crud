@@ -7,3 +7,4 @@ Route::post("/product/save", [ProductController::class, "saveProductEndpoint"])-
 Route::get("/product/all", [ProductController::class, "getAllProductEndpoint"])->name("product.all");
 Route::get("/product/{id}", [ProductController::class, "getProductByIdEndpoint"])->name("product.oneById");
 Route::patch("/product/update-status/{id}", [ProductController::class, "updateProductStatusEndpoint"])->name("product.updateStatus");
+Route::delete("/product/delete/{id}", [ProductController::class, "deleteProductEndpoint"])->name("product.delete");

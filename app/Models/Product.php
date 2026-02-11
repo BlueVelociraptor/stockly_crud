@@ -59,4 +59,9 @@ class Product extends Model
     {
         return $this->hasOne(Product_Image::class, "product_id", "id");
     }
+
+    public function productImage(): HasOne
+    {
+        return $this->product_image();
+    }
 }

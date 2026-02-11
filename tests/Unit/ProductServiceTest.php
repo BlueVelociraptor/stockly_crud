@@ -170,42 +170,39 @@ class ProductServiceTest extends TestCase
         $this->assertFalse($productSubject->status);
     }
 
-    //TODO: Fix Factory Relation Issue
-    // public function test_delete_product_should_execute_successfully(): void
-    // {
-    //     $product = Product::factory()
-    //         ->has(Product_Image::factory())
-    //         ->make()
-    //         ->setRawAttributes([
-    //             "id" => 1
-    //         ]);
+    public function test_delete_product_should_execute_successfully(): void
+    {
+        $product = Product::factory()->make()->setRawAttributes(["id" => 1]);
+        $product_image = Product_Image::factory()->make();
 
-    //     $productId = $product->id;
+        $product->setRelation("product_image", $product_image);
 
-    //     $this->mockedProductRepository->shouldReceive("findOneById")
-    //         ->with($productId)
-    //         ->once()
-    //         ->andReturn($product);
+        $productId = $product->id;
 
-    //     $this->mockedDeleteProductImageService->shouldReceive("uploadJob")
-    //         ->once()
-    //         ->andReturnNull();
+        $this->mockedProductRepository->shouldReceive("findOneById")
+            ->with($productId)
+            ->once()
+            ->andReturn($product);
 
-    //     $this->mockedProductRepository->shouldReceive("deleteOne")
-    //         ->with(Mockery::type(Product::class))
-    //         ->once()
-    //         ->andReturnTrue();
+        $this->mockedDeleteProductImageService->shouldReceive("uploadJob")
+            ->once()
+            ->andReturnNull();
 
-    //     $this->productService = new ProductService(
-    //         $this->mockedProductRepository,
-    //         $this->mockedUploadProductImageService,
-    //         $this->mockedDeleteProductImageService,
-    //     );
+        $this->mockedProductRepository->shouldReceive("deleteOne")
+            ->with(Mockery::type(Product::class))
+            ->once()
+            ->andReturnTrue();
 
-    //     $response = $this->productService->deleteProduct($productId);
+        $this->productService = new ProductService(
+            $this->mockedProductRepository,
+            $this->mockedUploadProductImageService,
+            $this->mockedDeleteProductImageService,
+        );
 
-    //     $this->assertTrue($response);
-    // }
+        $response = $this->productService->deleteProduct($productId);
+
+        $this->assertTrue($response);
+    }
 
     protected function tearDown(): void
     {

@@ -20,7 +20,6 @@ class Product_ImageFactory extends Factory
     public function definition(): array
     {
         return [
-            "product_id" => null,
             "public_url" => fake()->url(),
             "public_id" => fake()->uuid(),
         ];

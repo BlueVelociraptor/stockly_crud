@@ -27,11 +27,8 @@ class ProductFactory extends Factory
         ];
     }
 
-    public function withProductImage()
+    public function withProductImage(): static
     {
-        return $this->has(Product_Image::factory()->state([
-            "public_url" => "http://example.com",
-            "public_id" => "123",
-        ]));
+        return $this->has(Product_Image::factory());
     }
 }
